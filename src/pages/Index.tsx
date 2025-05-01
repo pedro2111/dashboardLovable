@@ -6,10 +6,13 @@ import { AlertCard } from "@/components/dashboard/AlertCard";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { 
   alertData, 
-  tableData, 
   timeSeriesData,
   proposalStatusData
 } from "@/data/dashboardData";
+import { fetchAlertasGerData } from "@/services/alertService";
+import type { AlertaGerData } from "@/types/dashboard";
+import { fetchFunnelData } from "@/services/funnelService";
+import { FunnelData } from "@/types/dashboard";
 import { fetchKPIData } from "@/services/kpiService";
 import { 
   BarChart, 
@@ -24,61 +27,55 @@ import {
   PieChart, 
   Pie, 
   Cell, 
-  Legend 
+  Legend,
+  FunnelChart,
+  Funnel,
+  LabelList
 } from "recharts";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { ChartBar, AlertCircle, Calendar, GridIcon, ChartPie } from "lucide-react";
 
-const columns: ColumnDef<typeof tableData[0]>[] = [
+const columns: ColumnDef<any>[] = [
   {
-    accessorKey: "agencia",
-    header: "Agência",
+    accessorKey: "NU_PROPOSTA",
+    header: "Nº Proposta",
   },
   {
-    accessorKey: "operacao",
-    header: "Operação",
-  },
-  {
-    accessorKey: "valor",
-    header: "Valor",
+    accessorKey: "HORAS_EM_GER",
+    header: "Horas em GER",
     cell: ({ row }) => {
-      const valor = parseFloat(row.getValue("valor"));
-      const formatted = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(valor);
-      
-      return formatted;
+      const horas = row.getValue("HORAS_EM_GER");
+      return `${(horas as number).toFixed(1)}h`;
     },
   },
   {
-    accessorKey: "data",
-    header: "Data",
+    accessorKey: "STATUS_ALERTA",
+    header: "Status Alerta",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("data"));
-      return date.toLocaleDateString("pt-BR");
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.getValue("STATUS_ALERTA") as string;
       
       return (
         <Badge
           className={
-            status === "Aprovado"
-              ? "bg-green-100 text-green-800"
-              : status === "Pendente"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-red-100 text-red-800"
+            status === "Bloqueado"
+              ? "bg-red-100 text-red-800"
+              : status === "Crítico"
+              ? "bg-orange-100 text-orange-800"
+              : "bg-yellow-100 text-yellow-800"
           }
         >
           {status}
         </Badge>
       );
+    },
+  },
+  {
+    accessorKey: "ULTIMA_ATUALIZACAO",
+    header: "Última Atualização",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("ULTIMA_ATUALIZACAO"));
+      return date.toLocaleString("pt-BR");
     },
   },
 ];
@@ -109,18 +106,24 @@ const renderPieChartLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, perce
 const Index = () => {
   const [statusData, setStatusData] = useState<any[]>([]);
   const [overviewData, setOverviewData] = useState<any | null>(null);
+  const [funnelData, setFunnelData] = useState<FunnelData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [alertasGerData, setAlertasGerData] = useState<AlertaGerData[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [statusResult, overviewResult] = await Promise.all([
+        const [statusResult, overviewResult, funnelResult, alertasGerResult] = await Promise.all([
           proposalStatusData(),
-          fetchKPIData()
+          fetchKPIData(),
+          fetchFunnelData(),
+          fetchAlertasGerData()
         ]);
         setStatusData(statusResult);
         setOverviewData(overviewResult);
+        setFunnelData(funnelResult);
+        setAlertasGerData(alertasGerResult);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       } finally {
@@ -174,7 +177,7 @@ const Index = () => {
         </div>
       )}
 
-      <div className="mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <ChartCard title="Distribuição de Propostas por Situação">
           <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
             <ResponsiveContainer width="100%" height={350}>
@@ -234,6 +237,102 @@ const Index = () => {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+
+        <ChartCard title="Conversão entre Etapas Principais">
+          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
+            <ResponsiveContainer width="100%" height={350}>
+              <FunnelChart>
+                <Tooltip
+                  formatter={(value, name, props) => {
+                    const data = props.payload;
+                    return [`${data.QTD_PROPOSTAS} propostas (${data.TAXA_CONVERSAO}%)`, data.DESCRICAO];
+                  }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Funnel
+                  data={funnelData}
+                  dataKey="QTD_PROPOSTAS"
+                  nameKey="ETAPA"
+                  isAnimationActive
+                >
+                  {funnelData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={index % 2 === 0 ? '#0050AB' : '#FD8204'}
+                    />
+                  ))}
+                  <LabelList
+                    position="right"
+                    dataKey="DESCRICAO"
+                    fill="#333"
+                    stroke="none"
+                    fontSize={12}
+                    formatter={(value) => value}
+                  />
+                  <LabelList
+                    position="left"
+                    dataKey="TAXA_CONVERSAO"
+                    fill="#333"
+                    stroke="none"
+                    fontSize={12}
+                    formatter={(value) => `${value}%`}
+                  />
+                </Funnel>
+              </FunnelChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+
+        <ChartCard title="Top 5 Situações de Propostas">
+          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart
+                data={statusData.sort((a, b) => b.QTD_PROPOSTAS - a.QTD_PROPOSTAS).slice(0, 5)}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
+                <XAxis type="number" />
+                <YAxis
+                  type="category"
+                  dataKey="SG_SITUACAO_PROPOSTA"
+                  width={150}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value} propostas`, 'Quantidade']}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar
+                  dataKey="QTD_PROPOSTAS"
+                  fill="#0050AB"
+                  radius={[0, 4, 4, 0]}
+                  barSize={30}
+                >
+                  {statusData.slice(0, 5).map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -279,8 +378,8 @@ const Index = () => {
       <div className="mt-6">
         <DataTable 
           columns={columns} 
-          data={tableData}
-          title="Operações Recentes"
+          data={alertasGerData}
+          title="Alertas proposta GER > 2h"
         />
       </div>
 

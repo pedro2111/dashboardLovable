@@ -166,6 +166,18 @@ export const alertData: AlertData[] = [
   },
 ];
 
+export type AlertaGerData = {
+  NU_PROPOSTA: number;
+  NU_DV_PROPOSTA: number;
+  HORAS_EM_GER: number;
+  STATUS_ALERTA: string;
+  ULTIMA_ATUALIZACAO: Date;
+  NU_CANAL_SEGURIDADE: number;
+  NU_EMPRESA_SEGURIDADE: number;
+};
+
+export { fetchAlertasGerData as alertasGerData } from '../services/alertService';
+
 export { fetchProposalStatusDistribution as proposalStatusData } from '../services/proposalService';
 
 export const proposalHistoryData: ProposalHistoryRecord[] = [
