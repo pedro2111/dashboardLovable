@@ -1,12 +1,10 @@
 import { OverviewStats } from "../data/dashboardData";
+import { api } from "./authService";
 
 export async function fetchKPIData(): Promise<OverviewStats[]> {
   try {
-    const response = await fetch('http://localhost:3001/api/kpis');
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
-    const data = await response.json();
+    const response = await api.get('/kpis');
+    const data = response.data;
     
     // Transformar os dados da API no formato OverviewStats
     return [

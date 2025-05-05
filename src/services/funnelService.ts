@@ -1,4 +1,5 @@
 import { FunnelData } from '@/types/dashboard';
+import {api} from "./authService"
 
 export const funnelData: FunnelData[] = [
   { ORDEM: 1, ETAPA: 'GER', DESCRICAO: 'PROPOSTA GERADA', QTD_PROPOSTAS: 245, TAXA_CONVERSAO: 100.00 },
@@ -7,11 +8,13 @@ export const funnelData: FunnelData[] = [
   { ORDEM: 4, ETAPA: 'ATV', DESCRICAO: 'TITULO ATIVADO', QTD_PROPOSTAS: 132, TAXA_CONVERSAO: 53.88 }
 ];
 
-export const fetchFunnelData = async (): Promise<FunnelData[]> => {
+export async function fetchFunnelData(): Promise<FunnelData[]> {
   // Simula uma chamada à API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(funnelData);
-    }, 1000);
-  });
+  try {
+    const response = await api.get('/conversao-etapas');
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar dados da funil:', error);
+    throw error;
+  }
 };

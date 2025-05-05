@@ -1,15 +1,10 @@
 import { AlertaGerData } from "@/data/dashboardData";
+import { api } from "./authService";
 
 export async function fetchAlertasGerData(): Promise<AlertaGerData[]> {
   try {
-    const response = await fetch('http://localhost:3001/api/propostas-ger-2h');
-    
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar dados: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.get('/propostas-ger-2h');
+    return response.data;
   } catch (error) {
     console.error('Erro ao buscar dados de alertas GER:', error);
     throw error;
