@@ -18,6 +18,7 @@ const authApi = axios.create({
   }
 });
 
+
 // Instância do Axios para as APIs do sistema
 export const api = axios.create({
   baseURL: config.API_URL,

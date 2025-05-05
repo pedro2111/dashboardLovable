@@ -12,6 +12,7 @@ declare global {
 
 export const config = {
   get AUTH_API_URL() {
+    console.log(window.APP_CONFIG?.AUTH_API_URL);
     return window.APP_CONFIG?.AUTH_API_URL || 'https://login.des.caixa';
   },
   get API_URL() {
