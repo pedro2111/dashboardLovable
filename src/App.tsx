@@ -9,6 +9,7 @@ import AlertsPage from "./pages/AlertsPage";
 import TimeAnalysisPage from "./pages/TimeAnalysisPage";
 import DistributionPage from "./pages/DistributionPage";
 import ProposalHistoryPage from "./pages/ProposalHistoryPage";
+import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -22,7 +23,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/visao-geral" element={<Index />} />
             <Route path="/alertas" element={<AlertsPage />} />
             <Route path="/analise-temporal" element={<TimeAnalysisPage />} />
             <Route path="/distribuicao" element={<DistributionPage />} />

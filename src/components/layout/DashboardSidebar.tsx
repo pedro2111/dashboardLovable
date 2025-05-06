@@ -70,7 +70,7 @@ export function DashboardSidebar() {
         </Button>
       </div>
       <div className="py-6 px-2 space-y-1">
-        <SidebarLink to="/" icon={LayoutDashboard} collapsed={collapsed}>
+        <SidebarLink to="/visao-geral" icon={LayoutDashboard} collapsed={collapsed}>
           Visão Geral
         </SidebarLink>
         <SidebarLink to="/alertas" icon={AlertCircle} collapsed={collapsed}>
