@@ -10,11 +10,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { cn } from "@/lib/utils";
-import { proposalHistoryData, ProposalHistoryRecord } from "@/data/dashboardData";
+import { ProposalHistoryRecord, ProposalHistoryResponse } from "@/data/dashboardData";
+import { fetchProposalHistory } from "@/services/proposalHistoryService";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function ProposalHistoryPage() {
-  const [filteredData, setFilteredData] = useState<ProposalHistoryRecord[]>(proposalHistoryData);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [filteredData, setFilteredData] = useState<ProposalHistoryResponse>({
+    data: [],
+    pagination: { offset: 1, limit: 10, count: 10 },
+    filters: {
+      nuProposta: null,
+      sgSituacaoProposta: null,
+      dataInicio: '',
+      dataFim: ''
+    },
+    timestamp: new Date().toISOString()
+  });
   const [proposalNumber, setProposalNumber] = useState<string>("");
   const [situacao, setSituacao] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -23,105 +36,94 @@ export default function ProposalHistoryPage() {
   // Table columns definition
   const columns: ColumnDef<ProposalHistoryRecord>[] = [
     {
-      accessorKey: "DATA_EVOLUCAO",
+      accessorKey: "dataEvolucao",
       header: "Data Evolução",
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("DATA_EVOLUCAO"));
-        return format(date, "dd/MM/yyyy HH:mm");
-      },
     },
     {
-      accessorKey: "CONTRATO",
+      accessorKey: "contrato",
       header: "Contrato",
     },
     {
-      accessorKey: "NU_PROPOSTA_SEGURIDADE",
+      accessorKey: "nuPropostaSeguridade",
       header: "Nº Proposta",
     },
     {
-      accessorKey: "DE_SITUACAO_PROPOSTA",
+      accessorKey: "deSituacaoProposta",
       header: "Situação",
       cell: ({ row }) => {
-        const status = row.getValue("SG_SITUACAO_PROPOSTA") as string;
+        const status = row.original.sgSituacaoProposta as string;
         return (
           <div className="flex items-center">
             <div
               className={cn(
                 "mr-2 h-2 w-2 rounded-full",
-                status === "ATIVA" && "bg-green-500",
-                status === "EM_ANALISE" && "bg-blue-500",
+                status === "GERADA" && "bg-green-500",
+                status === "ENVIADA" && "bg-blue-500",
                 status === "PENDENTE" && "bg-yellow-500",
                 status === "REJEITADA" && "bg-red-500",
-                status === "APROVADA" && "bg-emerald-500",
+                status === "EMITIDA" && "bg-emerald-500",
                 status === "CANCELADA" && "bg-gray-500"
               )}
             />
-            <span>{row.getValue("DE_SITUACAO_PROPOSTA")}</span>
+            <span>{row.original.deSituacaoProposta}</span>
           </div>
         );
       },
     },
     {
-      accessorKey: "DE_ACAO_FLUXO_SERVICO",
+      accessorKey: "deAcaoFluxoServico",
       header: "Ação",
     },
     {
-      accessorKey: "DE_FLUXO_SERVICO_SEGURIDADE",
+      accessorKey: "deFluxoServicoSeguridade",
       header: "Tipo de Fluxo",
     },
     {
-      accessorKey: "DE_MOTIVO_SISTEMA",
+      accessorKey: "deMotivoSistema",
       header: "Motivo",
-      cell: ({ row }) => row.getValue("DE_MOTIVO_SISTEMA") || "—",
+      cell: ({ row }) => row.getValue("deMotivoSistema") || "—",
     },
     {
-      accessorKey: "IC_MONITORACAO",
+      accessorKey: "icMonitoracao",
       header: "Monitoração",
     },
     {
-      accessorKey: "IC_NEGOCIAL",
+      accessorKey: "icNegocial",
       header: "Negocial",
     },
   ];
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const fetchData = async (page: number = 1) => {
+    try {
+      const filters = {
+        nuProposta: proposalNumber,
+        sgSituacaoProposta: situacao || undefined,
+        dataInicio: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
+        dataFim: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+        page,
+        limit: pageSize
+      };
+
+      const response = await fetchProposalHistory(filters);
+      setFilteredData(response);
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
+  };
+
   // Apply filters when any of the filter values change
   useEffect(() => {
-    let results = proposalHistoryData;
+    setCurrentPage(1);
+    fetchData(1);
+  }, [proposalNumber, situacao, startDate, endDate, pageSize]);
 
-    // Filter by proposal number
-    if (proposalNumber) {
-      results = results.filter((record) =>
-        record.NU_PROPOSTA_SEGURIDADE.toString().includes(proposalNumber)
-      );
-    }
-
-    // Filter by situacao
-    if (situacao) {
-      results = results.filter((record) =>
-        record.SG_SITUACAO_PROPOSTA === situacao
-      );
-    }
-
-    // Filter by date range
-    if (startDate && endDate) {
-      results = results.filter((record) => {
-        const recordDate = new Date(record.DATA_EVOLUCAO);
-        return recordDate >= startDate && recordDate <= endDate;
-      });
-    } else if (startDate) {
-      results = results.filter((record) => {
-        const recordDate = new Date(record.DATA_EVOLUCAO);
-        return recordDate >= startDate;
-      });
-    } else if (endDate) {
-      results = results.filter((record) => {
-        const recordDate = new Date(record.DATA_EVOLUCAO);
-        return recordDate <= endDate;
-      });
-    }
-
-    setFilteredData(results);
-  }, [proposalNumber, situacao, startDate, endDate]);
+  useEffect(() => {
+    fetchData(currentPage);
+  }, [currentPage]);
 
   const handleReset = () => {
     setProposalNumber("");
@@ -148,7 +150,7 @@ export default function ProposalHistoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             {/* Número da Proposta filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Número Proposta Seguridade</label>
+              <label className="text-sm font-medium">Número da Proposta</label>
               <Input
                 type="number"
                 placeholder="Digite o número"
@@ -167,12 +169,13 @@ export default function ProposalHistoryPage() {
                 onChange={(e) => setSituacao(e.target.value)}
               >
                 <option value="">Todas</option>
-                <option value="ATIVA">Ativa</option>
-                <option value="EM_ANALISE">Em Análise</option>
-                <option value="PENDENTE">Pendente</option>
-                <option value="APROVADA">Aprovada</option>
-                <option value="REJEITADA">Rejeitada</option>
-                <option value="CANCELADA">Cancelada</option>
+                <option value="GER">GER</option>
+                <option value="ENV">ENV</option>
+                <option value="EMT">EMT</option>
+                <option value="REJ">REJ</option>
+                <option value="CAN">CAN</option>
+                <option value="PEN">PEN</option>
+                <option value="VNC">VNC</option>
               </select>
             </div>
 
@@ -231,6 +234,22 @@ export default function ProposalHistoryPage() {
                 </PopoverContent>
               </Popover>
             </div>
+
+            {/* Itens por página */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Itens por página</label>
+              <select
+                className="flex h-10 w-full rounded-md border backdrop-blur-sm bg-white/50 dark:bg-gray-800/50 border-white/20 dark:border-gray-700/30 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
           </div>
 
           {/* Action buttons */}
@@ -244,6 +263,7 @@ export default function ProposalHistoryPage() {
             </Button>
             <Button 
               className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary transition-all hover:shadow-md"
+              onClick={() => fetchData(1)}
             >
               <Search className="h-4 w-4" />
               Pesquisar
@@ -256,7 +276,11 @@ export default function ProposalHistoryPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 blur-xl opacity-30 -z-10 rounded-xl"></div>
           <DataTable
             columns={columns}
-            data={filteredData}
+            data={filteredData.data}
+            pageSize={filteredData.pagination.limit}
+            currentPage={currentPage}
+            totalItems={filteredData.pagination.count}
+            onPageChange={handlePageChange}
             title="Resultados"
           />
         </div>

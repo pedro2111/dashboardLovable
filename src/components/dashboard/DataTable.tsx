@@ -18,17 +18,26 @@ import {
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   title?: string;
+  pageSize?: number;
+  currentPage?: number;
+  totalItems?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   title,
+  pageSize = 10,
+  currentPage = 1,
+  totalItems = 0,
+  onPageChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -42,6 +51,8 @@ export function DataTable<TData, TValue>({
       sorting,
     },
   });
+
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   return (
     <Card className="border backdrop-blur-md bg-white/80 dark:bg-gray-800/80 border-white/20 dark:border-gray-700/30 shadow-lg overflow-hidden">
@@ -104,6 +115,33 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
+      {totalItems > 0 && (
+        <div className="flex items-center justify-between space-x-2 p-4 border-t border-white/20 dark:border-gray-700/30">
+          <div className="text-sm text-muted-foreground">
+            Página {currentPage} de {totalPages}
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="backdrop-blur-sm bg-white/50 dark:bg-gray-800/50 border-white/20 dark:border-gray-700/30"
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="backdrop-blur-sm bg-white/50 dark:bg-gray-800/50 border-white/20 dark:border-gray-700/30"
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

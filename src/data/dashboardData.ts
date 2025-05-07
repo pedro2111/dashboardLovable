@@ -37,16 +37,32 @@ export type TableData = {
 };
 
 export type ProposalHistoryRecord = {
-  DATA_EVOLUCAO: string;
-  CONTRATO: string;
-  NU_PROPOSTA_SEGURIDADE: number;
-  SG_SITUACAO_PROPOSTA: string;
-  DE_SITUACAO_PROPOSTA: string;
-  DE_ACAO_FLUXO_SERVICO: string;
-  DE_FLUXO_SERVICO_SEGURIDADE: string;
-  DE_MOTIVO_SISTEMA: string | null;
-  IC_MONITORACAO: "S" | "N";
-  IC_NEGOCIAL: "S" | "N";
+  dataEvolucao: string;
+  contrato: string;
+  nuPropostaSeguridade: number;
+  sgSituacaoProposta: string;
+  deSituacaoProposta: string;
+  deAcaoFluxoServico: string;
+  deFluxoServicoSeguridade: string;
+  deMotivoSistema: string | null;
+  icMonitoracao: "S" | "N";
+  icNegocial: "S" | "N";
+};
+
+export type ProposalHistoryResponse = {
+  data: ProposalHistoryRecord[];
+  pagination: {
+    offset: number;
+    limit: number;
+    count: number;
+  };
+  filters: {
+    nuProposta: number | null;
+    sgSituacaoProposta: string | null;
+    dataInicio: string;
+    dataFim: string;
+  };
+  timestamp: string;
 };
 
 export type ProposalStatusData = {
@@ -180,125 +196,66 @@ export { fetchAlertasGerData as alertasGerData } from '../services/alertService'
 
 export { fetchProposalStatusDistribution as proposalStatusData } from '../services/proposalService';
 
-export const proposalHistoryData: ProposalHistoryRecord[] = [
-  {
-    "DATA_EVOLUCAO": "2024-05-01T10:15:00.000Z",
-    "CONTRATO": "12345678",
-    "NU_PROPOSTA_SEGURIDADE": 987654,
-    "SG_SITUACAO_PROPOSTA": "ATIVA",
-    "DE_SITUACAO_PROPOSTA": "Proposta Ativa",
-    "DE_ACAO_FLUXO_SERVICO": "Envio para análise",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Aposentadoria",
-    "DE_MOTIVO_SISTEMA": "Processo automático",
-    "IC_MONITORACAO": "S",
-    "IC_NEGOCIAL": "N"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-05-02T14:30:00.000Z",
-    "CONTRATO": "87654321",
-    "NU_PROPOSTA_SEGURIDADE": 123456,
-    "SG_SITUACAO_PROPOSTA": "EM_ANALISE",
-    "DE_SITUACAO_PROPOSTA": "Em Análise",
-    "DE_ACAO_FLUXO_SERVICO": "Verificação documental",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Pensão",
-    "DE_MOTIVO_SISTEMA": null,
-    "IC_MONITORACAO": "N",
-    "IC_NEGOCIAL": "S"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-04-28T09:20:00.000Z",
-    "CONTRATO": "45678912",
-    "NU_PROPOSTA_SEGURIDADE": 567890,
-    "SG_SITUACAO_PROPOSTA": "APROVADA",
-    "DE_SITUACAO_PROPOSTA": "Aprovada",
-    "DE_ACAO_FLUXO_SERVICO": "Aprovação final",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Seguro de Vida",
-    "DE_MOTIVO_SISTEMA": "Documentação completa",
-    "IC_MONITORACAO": "N",
-    "IC_NEGOCIAL": "S"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-04-25T16:45:00.000Z",
-    "CONTRATO": "78912345",
-    "NU_PROPOSTA_SEGURIDADE": 345678,
-    "SG_SITUACAO_PROPOSTA": "REJEITADA",
-    "DE_SITUACAO_PROPOSTA": "Rejeitada",
-    "DE_ACAO_FLUXO_SERVICO": "Análise de crédito",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Previdência",
-    "DE_MOTIVO_SISTEMA": "Perfil de risco inadequado",
-    "IC_MONITORACAO": "S",
-    "IC_NEGOCIAL": "N"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-05-03T11:10:00.000Z",
-    "CONTRATO": "23456789",
-    "NU_PROPOSTA_SEGURIDADE": 789012,
-    "SG_SITUACAO_PROPOSTA": "PENDENTE",
-    "DE_SITUACAO_PROPOSTA": "Pendente",
-    "DE_ACAO_FLUXO_SERVICO": "Aguardando documentação",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Auxílio",
-    "DE_MOTIVO_SISTEMA": "Documentos adicionais solicitados",
-    "IC_MONITORACAO": "S",
-    "IC_NEGOCIAL": "S"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-04-20T13:25:00.000Z",
-    "CONTRATO": "34567891",
-    "NU_PROPOSTA_SEGURIDADE": 901234,
-    "SG_SITUACAO_PROPOSTA": "CANCELADA",
-    "DE_SITUACAO_PROPOSTA": "Cancelada",
-    "DE_ACAO_FLUXO_SERVICO": "Cancelamento a pedido",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Seguro Residencial",
-    "DE_MOTIVO_SISTEMA": "Solicitação do cliente",
-    "IC_MONITORACAO": "N",
-    "IC_NEGOCIAL": "N"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-05-04T08:50:00.000Z",
-    "CONTRATO": "56789123",
-    "NU_PROPOSTA_SEGURIDADE": 234567,
-    "SG_SITUACAO_PROPOSTA": "EM_ANALISE",
-    "DE_SITUACAO_PROPOSTA": "Em Análise",
-    "DE_ACAO_FLUXO_SERVICO": "Análise jurídica",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Seguro Automóvel",
-    "DE_MOTIVO_SISTEMA": null,
-    "IC_MONITORACAO": "S",
-    "IC_NEGOCIAL": "S"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-04-15T15:35:00.000Z",
-    "CONTRATO": "89123456",
-    "NU_PROPOSTA_SEGURIDADE": 456789,
-    "SG_SITUACAO_PROPOSTA": "ATIVA",
-    "DE_SITUACAO_PROPOSTA": "Proposta Ativa",
-    "DE_ACAO_FLUXO_SERVICO": "Ativação do serviço",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Seguro Saúde",
-    "DE_MOTIVO_SISTEMA": "Aprovação automática",
-    "IC_MONITORACAO": "N",
-    "IC_NEGOCIAL": "S"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-05-02T09:05:00.000Z",
-    "CONTRATO": "91234567",
-    "NU_PROPOSTA_SEGURIDADE": 678901,
-    "SG_SITUACAO_PROPOSTA": "PENDENTE",
-    "DE_SITUACAO_PROPOSTA": "Pendente",
-    "DE_ACAO_FLUXO_SERVICO": "Verificação de identidade",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Plano de Saúde",
-    "DE_MOTIVO_SISTEMA": "Validação de dados pessoais",
-    "IC_MONITORACAO": "S",
-    "IC_NEGOCIAL": "N"
-  },
-  {
-    "DATA_EVOLUCAO": "2024-04-10T12:40:00.000Z",
-    "CONTRATO": "67891234",
-    "NU_PROPOSTA_SEGURIDADE": 123789,
-    "SG_SITUACAO_PROPOSTA": "APROVADA",
-    "DE_SITUACAO_PROPOSTA": "Aprovada",
-    "DE_ACAO_FLUXO_SERVICO": "Confirmação de pagamento",
-    "DE_FLUXO_SERVICO_SEGURIDADE": "Fluxo de Seguro Empresarial",
-    "DE_MOTIVO_SISTEMA": "Pagamento verificado",
-    "IC_MONITORACAO": "N",
-    "IC_NEGOCIAL": "S"
+const generateMockData = () => {
+  const statusOptions = [
+    { code: "GER", desc: "PROPOSTA GERADA" },
+    { code: "ENV", desc: "PROPOSTA ENVIADA" },
+    { code: "EMT", desc: "PROPOSTA EMITIDA" },
+    { code: "PEN", desc: "PENDENTE" },
+    { code: "REJ", desc: "REJEITADA" },
+    { code: "CAN", desc: "CANCELADA" }
+  ];
+
+  const acaoOptions = ["CRIAR", "ALTERAR", "CANCELAR", "APROVAR", "REJEITAR", "ANALISAR"];
+  const fluxoOptions = ["CANCELAMENTO", "CONTRATACAO", "REJEICAO", "EMISSAO", "LIQUIDACAO", "SINISTRO"];
+  const motivoOptions = ["SOLICITAÇÃO CLIENTE", "ERRO SISTEMA", "ANÁLISE DE RISCO", "DUPLICIDADE", "INADEQUAÇÃO", "FRAUDE SUSPEITA", ""];
+  const contratos = ["12526", "45872", "98765", "23456", "78954", "36589", "14785"];
+
+  const mockData: ProposalHistoryRecord[] = [];
+
+  for (let i = 1; i <= 50; i++) {
+    const dia = Math.floor(Math.random() * 30) + 1;
+    const mes = Math.floor(Math.random() * 12) + 1;
+    const hora = Math.floor(Math.random() * 24);
+    const minuto = Math.floor(Math.random() * 60);
+    const segundo = Math.floor(Math.random() * 60);
+    const dataFormatada = `${dia < 10 ? '0' + dia : dia}/${mes < 10 ? '0' + mes : mes}/2025 ${hora < 10 ? '0' + hora : hora}:${minuto < 10 ? '0' + minuto : minuto}:${segundo < 10 ? '0' + segundo : segundo}`;
+
+    const statusIndex = Math.floor(Math.random() * statusOptions.length);
+    const acaoIndex = Math.floor(Math.random() * acaoOptions.length);
+    const fluxoIndex = Math.floor(Math.random() * fluxoOptions.length);
+    const motivoIndex = Math.floor(Math.random() * motivoOptions.length);
+    const contratoIndex = Math.floor(Math.random() * contratos.length);
+
+    mockData.push({
+      dataEvolucao: dataFormatada,
+      contrato: contratos[contratoIndex],
+      nuPropostaSeguridade: 10000 + i,
+      sgSituacaoProposta: statusOptions[statusIndex].code,
+      deSituacaoProposta: statusOptions[statusIndex].desc,
+      deAcaoFluxoServico: acaoOptions[acaoIndex],
+      deFluxoServicoSeguridade: fluxoOptions[fluxoIndex],
+      deMotivoSistema: motivoOptions[motivoIndex],
+      icMonitoracao: Math.random() > 0.5 ? "S" : "N",
+      icNegocial: Math.random() > 0.5 ? "S" : "N"
+    });
   }
-];
+
+  return mockData;
+};
+
+export const proposalHistoryData: ProposalHistoryResponse = {
+  data: generateMockData(),
+  pagination: {
+    offset: 1,
+    limit: 50,
+    count: 50
+  },
+  filters: {
+    nuProposta: null,
+    sgSituacaoProposta: null,
+    dataInicio: "01/04/2025",
+    dataFim: "30/04/2025"
+  },
+  timestamp: new Date().toLocaleString()
+};
