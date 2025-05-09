@@ -45,22 +45,22 @@ export type ProposalHistoryRecord = {
   deAcaoFluxoServico: string;
   deFluxoServicoSeguridade: string;
   deMotivoSistema: string | null;
-  icMonitoracao: "S" | "N";
-  icNegocial: "S" | "N";
+  icMonitoracao: string;
+  icNegocial: string;
 };
 
 export type ProposalHistoryResponse = {
-  data: ProposalHistoryRecord[];
-  pagination: {
+  proposta: ProposalHistoryRecord[];
+  paginacao: {
     offset: number;
     limit: number;
     count: number;
   };
-  filters: {
-    nuProposta: number | null;
-    sgSituacaoProposta: string | null;
-    dataInicio: string;
-    dataFim: string;
+  filtros: {
+    nuProposta: null | string;
+    sgSituacaoProposta: null | string;
+    dataInicio: null | string;
+    dataFim: null | string;
   };
   timestamp: string;
 };
@@ -196,66 +196,7 @@ export { fetchAlertasGerData as alertasGerData } from '../services/alertService'
 
 export { fetchProposalStatusDistribution as proposalStatusData } from '../services/proposalService';
 
-const generateMockData = () => {
-  const statusOptions = [
-    { code: "GER", desc: "PROPOSTA GERADA" },
-    { code: "ENV", desc: "PROPOSTA ENVIADA" },
-    { code: "EMT", desc: "PROPOSTA EMITIDA" },
-    { code: "PEN", desc: "PENDENTE" },
-    { code: "REJ", desc: "REJEITADA" },
-    { code: "CAN", desc: "CANCELADA" }
-  ];
+// Importando dados mockados do arquivo JSON
+import historicoDados from '../../public/massa-historico.json';
 
-  const acaoOptions = ["CRIAR", "ALTERAR", "CANCELAR", "APROVAR", "REJEITAR", "ANALISAR"];
-  const fluxoOptions = ["CANCELAMENTO", "CONTRATACAO", "REJEICAO", "EMISSAO", "LIQUIDACAO", "SINISTRO"];
-  const motivoOptions = ["SOLICITAÇÃO CLIENTE", "ERRO SISTEMA", "ANÁLISE DE RISCO", "DUPLICIDADE", "INADEQUAÇÃO", "FRAUDE SUSPEITA", ""];
-  const contratos = ["12526", "45872", "98765", "23456", "78954", "36589", "14785"];
-
-  const mockData: ProposalHistoryRecord[] = [];
-
-  for (let i = 1; i <= 50; i++) {
-    const dia = Math.floor(Math.random() * 30) + 1;
-    const mes = Math.floor(Math.random() * 12) + 1;
-    const hora = Math.floor(Math.random() * 24);
-    const minuto = Math.floor(Math.random() * 60);
-    const segundo = Math.floor(Math.random() * 60);
-    const dataFormatada = `${dia < 10 ? '0' + dia : dia}/${mes < 10 ? '0' + mes : mes}/2025 ${hora < 10 ? '0' + hora : hora}:${minuto < 10 ? '0' + minuto : minuto}:${segundo < 10 ? '0' + segundo : segundo}`;
-
-    const statusIndex = Math.floor(Math.random() * statusOptions.length);
-    const acaoIndex = Math.floor(Math.random() * acaoOptions.length);
-    const fluxoIndex = Math.floor(Math.random() * fluxoOptions.length);
-    const motivoIndex = Math.floor(Math.random() * motivoOptions.length);
-    const contratoIndex = Math.floor(Math.random() * contratos.length);
-
-    mockData.push({
-      dataEvolucao: dataFormatada,
-      contrato: contratos[contratoIndex],
-      nuPropostaSeguridade: 10000 + i,
-      sgSituacaoProposta: statusOptions[statusIndex].code,
-      deSituacaoProposta: statusOptions[statusIndex].desc,
-      deAcaoFluxoServico: acaoOptions[acaoIndex],
-      deFluxoServicoSeguridade: fluxoOptions[fluxoIndex],
-      deMotivoSistema: motivoOptions[motivoIndex],
-      icMonitoracao: Math.random() > 0.5 ? "S" : "N",
-      icNegocial: Math.random() > 0.5 ? "S" : "N"
-    });
-  }
-
-  return mockData;
-};
-
-export const proposalHistoryData: ProposalHistoryResponse = {
-  data: generateMockData(),
-  pagination: {
-    offset: 1,
-    limit: 50,
-    count: 50
-  },
-  filters: {
-    nuProposta: null,
-    sgSituacaoProposta: null,
-    dataInicio: "01/04/2025",
-    dataFim: "30/04/2025"
-  },
-  timestamp: new Date().toLocaleString()
-};
+export const proposalHistoryData: ProposalHistoryResponse = historicoDados;

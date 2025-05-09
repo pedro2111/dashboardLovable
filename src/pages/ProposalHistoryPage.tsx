@@ -18,9 +18,9 @@ export default function ProposalHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [filteredData, setFilteredData] = useState<ProposalHistoryResponse>({
-    data: [],
-    pagination: { offset: 1, limit: 10, count: 10 },
-    filters: {
+    proposta: [],
+    paginacao: { offset: 0, limit: 10, count: 10 },
+    filtros: {
       nuProposta: null,
       sgSituacaoProposta: null,
       dataInicio: '',
@@ -104,7 +104,7 @@ export default function ProposalHistoryPage() {
         sgSituacaoProposta: situacao || undefined,
         dataInicio: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
         dataFim: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
-        page,
+        offset: page,
         limit: pageSize
       };
 
@@ -276,10 +276,10 @@ export default function ProposalHistoryPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 blur-xl opacity-30 -z-10 rounded-xl"></div>
           <DataTable
             columns={columns}
-            data={filteredData.data}
-            pageSize={filteredData.pagination.limit}
+            data={filteredData.proposta}
+            pageSize={filteredData.paginacao.limit}
             currentPage={currentPage}
-            totalItems={filteredData.pagination.count}
+            totalItems={filteredData.paginacao.count}
             onPageChange={handlePageChange}
             title="Resultados"
           />

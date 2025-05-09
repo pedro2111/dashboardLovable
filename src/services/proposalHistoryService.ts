@@ -6,7 +6,7 @@ interface ProposalHistoryFilters {
   sgSituacaoProposta?: string;
   dataInicio?: string;
   dataFim?: string;
-  page?: number;
+  offset?: number;
   limit?: number;
 }
 
@@ -26,8 +26,8 @@ export async function fetchProposalHistory(filters: ProposalHistoryFilters): Pro
     if (filters.dataFim) {
       params.append('dataFim', filters.dataFim);
     }
-    if (filters.page) {
-      params.append('page', filters.page.toString());
+    if (filters.offset) {
+      params.append('offset', filters.offset.toString());
     }
     if (filters.limit) {
       params.append('limit', filters.limit.toString());
