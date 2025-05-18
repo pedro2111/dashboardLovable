@@ -335,7 +335,7 @@ const Index = () => {
         </ChartCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      {/*  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2">
           <ChartCard 
             title="Operações Mensais" 
@@ -374,6 +374,7 @@ const Index = () => {
           ))}
         </div>
       </div>
+      */}
 
       <div className="mt-6">
         <DataTable 
@@ -383,7 +384,7 @@ const Index = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <ChartCard title="Distribuição por Tipo de Operação">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={timeSeriesData.slice(0, 6)}>
@@ -396,6 +397,7 @@ const Index = () => {
           </ResponsiveContainer>
         </ChartCard>
       </div>
+      */}
     </DashboardLayout>
   );
 };

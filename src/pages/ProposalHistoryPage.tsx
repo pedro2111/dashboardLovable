@@ -32,6 +32,7 @@ export default function ProposalHistoryPage() {
   const [situacao, setSituacao] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
 
   // Table columns definition
   const columns: ColumnDef<ProposalHistoryRecord>[] = [
@@ -115,10 +116,27 @@ export default function ProposalHistoryPage() {
     }
   };
 
-  // Apply filters when any of the filter values change
-  useEffect(() => {
+  // Função para aplicar os filtros com debounce
+  const applyFilters = () => {
     setCurrentPage(1);
     fetchData(1);
+  };
+
+  // Aplica debounce nos filtros
+  useEffect(() => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    const timeout = setTimeout(() => {
+      applyFilters();
+    }, 500);
+    setSearchTimeout(timeout);
+
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
   }, [proposalNumber, situacao, startDate, endDate, pageSize]);
 
   useEffect(() => {
