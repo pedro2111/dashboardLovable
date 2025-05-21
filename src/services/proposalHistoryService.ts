@@ -2,7 +2,7 @@ import { ProposalHistoryResponse } from "@/data/dashboardData";
 import { api } from "./authService";
 
 interface ProposalHistoryFilters {
-  nuProposta?: string;
+  nuPropostaSeguridade?: string;
   sgSituacaoProposta?: string;
   dataInicio?: string;
   dataFim?: string;
@@ -14,8 +14,8 @@ export async function fetchProposalHistory(filters: ProposalHistoryFilters): Pro
   try {
     const params = new URLSearchParams();
 
-    if (filters.nuProposta) {
-      params.append('nuProposta', filters.nuProposta);
+    if (filters.nuPropostaSeguridade) {
+      params.append('nuPropostaSeguridade', filters.nuPropostaSeguridade);
     }
     if (filters.sgSituacaoProposta) {
       params.append('sgSituacaoProposta', filters.sgSituacaoProposta);

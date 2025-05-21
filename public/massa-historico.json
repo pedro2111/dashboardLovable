@@ -5,13 +5,13 @@
         "count": 134
     },
     "filtros": {
-        "nuProposta": null,
+        "nuPropostaSeguridade": null,
         "sgSituacaoProposta": null,
         "dataInicio": null,
         "dataFim": null
     },
     "timestamp": "07/05/2025 14:29:42",
-    "proposta": [
+    "propostas": [
         {
             "dataEvolucao": "06/05/2025 10:57:20",
             "contrato": "12583",

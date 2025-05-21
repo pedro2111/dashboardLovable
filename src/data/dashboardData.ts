@@ -50,14 +50,14 @@ export type ProposalHistoryRecord = {
 };
 
 export type ProposalHistoryResponse = {
-  proposta: ProposalHistoryRecord[];
+  propostas: ProposalHistoryRecord[];
   paginacao: {
     offset: number;
     limit: number;
     count: number;
   };
   filtros: {
-    nuProposta: null | string;
+    nuPropostaSeguridade: null | string;
     sgSituacaoProposta: null | string;
     dataInicio: null | string;
     dataFim: null | string;

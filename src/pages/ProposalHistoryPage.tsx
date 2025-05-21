@@ -18,10 +18,10 @@ export default function ProposalHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [filteredData, setFilteredData] = useState<ProposalHistoryResponse>({
-    proposta: [],
+    propostas: [],
     paginacao: { offset: 0, limit: 10, count: 10 },
     filtros: {
-      nuProposta: null,
+      nuPropostaSeguridade: null,
       sgSituacaoProposta: null,
       dataInicio: '',
       dataFim: ''
@@ -45,7 +45,7 @@ export default function ProposalHistoryPage() {
       header: "Contrato",
     },
     {
-      accessorKey: "nuPropostaSeguridade",
+      accessorKey: "nuPropostaSeguridadeSeguridade",
       header: "Nº Proposta",
     },
     {
@@ -101,7 +101,7 @@ export default function ProposalHistoryPage() {
   const fetchData = async (page: number = 1) => {
     try {
       const filters = {
-        nuProposta: proposalNumber,
+        nuPropostaSeguridade: proposalNumber,
         sgSituacaoProposta: situacao || undefined,
         dataInicio: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
         dataFim: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
@@ -294,7 +294,7 @@ export default function ProposalHistoryPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 blur-xl opacity-30 -z-10 rounded-xl"></div>
           <DataTable
             columns={columns}
-            data={filteredData.proposta}
+            data={filteredData.propostas}
             pageSize={filteredData.paginacao.limit}
             currentPage={currentPage}
             totalItems={filteredData.paginacao.count}
