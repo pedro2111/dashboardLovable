@@ -45,7 +45,7 @@ export default function ProposalHistoryPage() {
       header: "Contrato",
     },
     {
-      accessorKey: "nuPropostaSeguridadeSeguridade",
+      accessorKey: "nuPropostaSeguridade",
       header: "Nº Proposta",
     },
     {
@@ -58,12 +58,13 @@ export default function ProposalHistoryPage() {
             <div
               className={cn(
                 "mr-2 h-2 w-2 rounded-full",
-                status === "GERADA" && "bg-green-500",
-                status === "ENVIADA" && "bg-blue-500",
-                status === "PENDENTE" && "bg-yellow-500",
-                status === "REJEITADA" && "bg-red-500",
-                status === "EMITIDA" && "bg-emerald-500",
-                status === "CANCELADA" && "bg-gray-500"
+                status === "GER" && "bg-green-500",
+                status === "ENV" && "bg-green-500",
+                status === "PEN" && "bg-yellow-500",
+                status === "VNC" && "bg-yellow-500",
+                status === "REJ" && "bg-red-500",
+                status === "EMT" && "bg-green-500",
+                status === "CAN" && "bg-red-500"
               )}
             />
             <span>{row.original.deSituacaoProposta}</span>

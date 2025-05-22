@@ -191,7 +191,7 @@ const Index = () => {
                   outerRadius={120}
                   innerRadius={60}
                   fill="#8884d8"
-                  dataKey="QTD_PROPOSTAS"
+                  dataKey="quantidade"
                   paddingAngle={2}
                 >
                   {statusData.map((entry, index) => (
@@ -206,7 +206,7 @@ const Index = () => {
                 <Tooltip 
                   formatter={(value, name, props) => {
                     const data = props.payload;
-                    return [`${data.QTD_PROPOSTAS} (${data.PERCENTUAL}%)`, data.SG_SITUACAO_PROPOSTA];
+                    return [`${data.quantidade} (${data.percentual.toFixed(1)}%)`, data.sgSituacaoProposta];
                   }}
                   contentStyle={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.9)', 
@@ -219,7 +219,7 @@ const Index = () => {
                 <Legend 
                   formatter={(value, entry, index) => {
                     const data = statusData[index];
-                    return data.SG_SITUACAO_PROPOSTA;
+                    return data.sgSituacaoProposta;
                   }}
                   layout="horizontal"
                   verticalAlign="bottom"
@@ -293,7 +293,7 @@ const Index = () => {
           <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
             <ResponsiveContainer width="100%" height={350}>
               <BarChart
-                data={statusData.sort((a, b) => b.QTD_PROPOSTAS - a.QTD_PROPOSTAS).slice(0, 5)}
+                data={statusData.sort((a, b) => b.quantidade - a.quantidade).slice(0, 5)}
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
@@ -301,7 +301,7 @@ const Index = () => {
                 <XAxis type="number" />
                 <YAxis
                   type="category"
-                  dataKey="SG_SITUACAO_PROPOSTA"
+                  dataKey="sgSituacaoProposta"
                   width={150}
                   tick={{ fontSize: 12 }}
                 />
@@ -316,7 +316,7 @@ const Index = () => {
                   }}
                 />
                 <Bar
-                  dataKey="QTD_PROPOSTAS"
+                  dataKey="quantidade"
                   fill="#0050AB"
                   radius={[0, 4, 4, 0]}
                   barSize={30}

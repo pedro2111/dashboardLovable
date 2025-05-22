@@ -66,11 +66,10 @@ export type ProposalHistoryResponse = {
 };
 
 export type ProposalStatusData = {
-  NU_SITUACAO_PROPOSTA: number;
-  SG_SITUACAO_PROPOSTA: string;
-  DE_SITUACAO_PROPOSTA: string;
-  QTD_PROPOSTAS: number;
-  PERCENTUAL: number;
+  sgSituacaoProposta: string;
+  deSituacaoProposta: string;
+  quantidade: number;
+  percentual: number;
 };
 
 export { fetchKPIData as overviewStats } from '../services/kpiService';
