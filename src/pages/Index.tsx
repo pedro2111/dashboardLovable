@@ -238,6 +238,53 @@ const Index = () => {
           </div>
         </ChartCard>
 
+        <ChartCard title="Top 5 Situações de Propostas">
+          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart
+                data={statusData.sort((a, b) => b.quantidade - a.quantidade).slice(0, 5)}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
+                <XAxis type="number" />
+                <YAxis
+                  type="category"
+                  dataKey="sgSituacaoProposta"
+                  width={150}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value} propostas`, 'Quantidade']}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar
+                  dataKey="quantidade"
+                  fill="#0050AB"
+                  radius={[0, 4, 4, 0]}
+                  barSize={30}
+                >
+                  {statusData.slice(0, 5).map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+      </div>
+
+      <div className="grid grid-cols-2 mt-6">
         <ChartCard title="Conversão entre Etapas Principais">
           <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
             <ResponsiveContainer width="100%" height={350}>
@@ -285,51 +332,6 @@ const Index = () => {
                   />
                 </Funnel>
               </FunnelChart>
-            </ResponsiveContainer>
-          </div>
-        </ChartCard>
-
-        <ChartCard title="Top 5 Situações de Propostas">
-          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart
-                data={statusData.sort((a, b) => b.quantidade - a.quantidade).slice(0, 5)}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                <XAxis type="number" />
-                <YAxis
-                  type="category"
-                  dataKey="sgSituacaoProposta"
-                  width={150}
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  formatter={(value) => [`${value} propostas`, 'Quantidade']}
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Bar
-                  dataKey="quantidade"
-                  fill="#0050AB"
-                  radius={[0, 4, 4, 0]}
-                  barSize={30}
-                >
-                  {statusData.slice(0, 5).map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={PIE_COLORS[index % PIE_COLORS.length]}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
             </ResponsiveContainer>
           </div>
         </ChartCard>

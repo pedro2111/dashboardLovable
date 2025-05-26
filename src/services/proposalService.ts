@@ -11,9 +11,23 @@ export interface ProposalResponse {
   situacaoRelatorio: ProposalStatusData[];
 }
 
-export async function fetchProposalStatusDistribution(): Promise<ProposalStatusData[]> {
+export interface ProposalStatusFilters {
+  dataInicio?: string;
+  dataFim?: string;
+  offset?: number;
+  limit?: number;
+}
+
+export async function fetchProposalStatusDistribution(filters?: ProposalStatusFilters): Promise<ProposalStatusData[]> {
   try {
-    const response = await api.get<ProposalResponse>('/distribuicao-situacao');
+    const params = {
+      dataInicio: filters?.dataInicio,
+      dataFim: filters?.dataFim,
+      offset: filters?.offset,
+      limit: filters?.limit
+    };
+
+    const response = await api.get<ProposalResponse>('/monitoracao/v1/relatorios/situacoes', { params });
     const situacaoRelatorio = response.data.situacaoRelatorio;
 
     // Calcula o total de todas as quantidades

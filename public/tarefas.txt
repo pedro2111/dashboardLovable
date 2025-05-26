@@ -1,7 +1,7 @@
-Distribuição proposta
+index (visao geral)
 
-1. Ajustar o ProposalStatusData no dashboarData para pegar novo formato de json
-    - incluir os fitros de data
-2. ajustar o proposalService para passar os filtros quando necessário
-
-3. Realizar a adição do campo calculado no service. Antes de retornar a o "data" calcular o campo. 
+1. Adicionar o tablist com as opçoes mensal,6m, Ano e Tudo. esse tablist irá influenciar nos graficos de pizza e barras. todas as opções vão ser parametro do proposalService (dataInicio e dataFim)
+   - mensal: deverá passar o parametro dataInicio e dataFim. O mes deve ser o atual e dataIncio sempre se a 01 e dataFim 31.
+   - 6m: deverá passar os ultimos 6 meses como parametro a partir do mes atual
+   - ano: deverá passar todo o ano atual.
+   - Tudo: Não deverá ter parametro de data. 
