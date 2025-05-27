@@ -27,6 +27,7 @@ export async function fetchProposalStatusDistribution(filters?: ProposalStatusFi
       limit: filters?.limit
     };
 
+    //console.log('URL da requisição:', api.getUri({ url: '/monitoracao/v1/relatorios/situacoes', params }));
     const response = await api.get<ProposalResponse>('/monitoracao/v1/relatorios/situacoes', { params });
     const situacaoRelatorio = response.data.situacaoRelatorio;
 
