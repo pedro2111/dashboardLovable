@@ -34,6 +34,7 @@ import {
 } from "recharts";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChartBar, AlertCircle, Calendar, GridIcon, ChartPie } from "lucide-react";
 
 const columns: ColumnDef<any>[] = [
@@ -103,19 +104,51 @@ const renderPieChartLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, perce
   );
 };
 
+type PeriodOption = 'mensal' | '6m' | 'ano' | 'tudo';
+
 const Index = () => {
   const [statusData, setStatusData] = useState<any[]>([]);
   const [overviewData, setOverviewData] = useState<any | null>(null);
   const [funnelData, setFunnelData] = useState<FunnelData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [alertasGerData, setAlertasGerData] = useState<AlertaGerData[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption>('tudo');
+
+  const getDateRange = (period: PeriodOption) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    switch (period) {
+      case 'mensal':
+        return {
+          dataInicio: `01/${(currentMonth + 1).toString().padStart(2, '0')}/${currentYear}`,
+          dataFim: `${new Date(currentYear, currentMonth + 1, 0).getDate()}/${(currentMonth + 1).toString().padStart(2, '0')}/${currentYear}`
+        };
+      case '6m':
+        const sixMonthsAgo = new Date(now.setMonth(now.getMonth() - 5));
+        return {
+          dataInicio: `01/${(sixMonthsAgo.getMonth() + 1).toString().padStart(2, '0')}/${sixMonthsAgo.getFullYear()}`,
+          dataFim: `${new Date(currentYear, currentMonth + 1, 0).getDate()}/${(currentMonth + 1).toString().padStart(2, '0')}/${currentYear}`
+        };
+      case 'ano':
+        return {
+          dataInicio: `01/01/${currentYear}`,
+          dataFim: `31/12/${currentYear}`
+        };
+      case 'tudo':
+      default:
+        return {};
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        const dateRange = getDateRange(selectedPeriod);
         const [statusResult, overviewResult, funnelResult, alertasGerResult] = await Promise.all([
-          proposalStatusData(),
+          proposalStatusData(dateRange),
           fetchKPIData(),
           fetchFunnelData(),
           fetchAlertasGerData()
@@ -132,7 +165,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedPeriod]);
 
   return (
     <DashboardLayout pageTitle="Visão Geral">
@@ -177,112 +210,121 @@ const Index = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <ChartCard title="Distribuição de Propostas por Situação">
-          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
-            <ResponsiveContainer width="100%" height={350}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={renderPieChartLabel}
-                  outerRadius={120}
-                  innerRadius={60}
-                  fill="#8884d8"
-                  dataKey="quantidade"
-                  paddingAngle={2}
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={PIE_COLORS[index % PIE_COLORS.length]} 
-                      strokeWidth={1}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value, name, props) => {
-                    const data = props.payload;
-                    return [`${data.quantidade} (${data.percentual.toFixed(1)}%)`, data.sgSituacaoProposta];
-                  }}
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Legend 
-                  formatter={(value, entry, index) => {
-                    const data = statusData[index];
-                    return data.sgSituacaoProposta;
-                  }}
-                  layout="horizontal"
-                  verticalAlign="bottom"
-                  align="center"
-                  wrapperStyle={{ 
-                    fontSize: '12px', 
-                    paddingTop: '10px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    gap: '10px' 
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </ChartCard>
+      <Tabs defaultValue="tudo" onValueChange={(value) => setSelectedPeriod(value as PeriodOption)} className="animate-fade-in mt-8">
+        <TabsList className="mb-8">
+          <TabsTrigger value="mensal">Mensal</TabsTrigger>
+          <TabsTrigger value="6m">6M</TabsTrigger>
+          <TabsTrigger value="ano">Ano</TabsTrigger>
+          <TabsTrigger value="tudo">Tudo</TabsTrigger>
+        </TabsList>
 
-        <ChartCard title="Top 5 Situações de Propostas">
-          <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart
-                data={statusData.sort((a, b) => b.quantidade - a.quantidade).slice(0, 5)}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                <XAxis type="number" />
-                <YAxis
-                  type="category"
-                  dataKey="sgSituacaoProposta"
-                  width={150}
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  formatter={(value) => [`${value} propostas`, 'Quantidade']}
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Bar
-                  dataKey="quantidade"
-                  fill="#0050AB"
-                  radius={[0, 4, 4, 0]}
-                  barSize={30}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <ChartCard title="Distribuição de Propostas por Situação">
+            <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderPieChartLabel}
+                    outerRadius={120}
+                    innerRadius={60}
+                    fill="#8884d8"
+                    dataKey="quantidade"
+                    paddingAngle={2}
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={PIE_COLORS[index % PIE_COLORS.length]} 
+                        strokeWidth={1}
+                        className="hover:opacity-80 transition-opacity"
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => {
+                      const data = props.payload;
+                      return [`${data.quantidade} (${data.percentual.toFixed(1)}%)`, data.sgSituacaoProposta];
+                    }}
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '0.5rem',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value, entry, index) => {
+                      const data = statusData[index];
+                      return data.sgSituacaoProposta;
+                    }}
+                    layout="horizontal"
+                    verticalAlign="bottom"
+                    align="center"
+                    wrapperStyle={{ 
+                      fontSize: '12px', 
+                      paddingTop: '10px',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'center',
+                      gap: '10px' 
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartCard>
+
+          <ChartCard title="Top 5 Situações de Propostas">
+            <div className="p-4 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-lg">
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart
+                  data={statusData.sort((a, b) => b.quantidade - a.quantidade).slice(0, 5)}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  {statusData.slice(0, 5).map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={PIE_COLORS[index % PIE_COLORS.length]}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </ChartCard>
-      </div>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
+                  <XAxis type="number" />
+                  <YAxis
+                    type="category"
+                    dataKey="sgSituacaoProposta"
+                    width={150}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip
+                    formatter={(value) => [`${value} propostas`, 'Quantidade']}
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '0.5rem',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Bar
+                    dataKey="quantidade"
+                    fill="#0050AB"
+                    radius={[0, 4, 4, 0]}
+                    barSize={30}
+                  >
+                    {statusData.slice(0, 5).map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                        className="hover:opacity-80 transition-opacity"
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartCard>
+        </div>
+      </Tabs>
 
       <div className="grid grid-cols-2 mt-6">
         <ChartCard title="Conversão entre Etapas Principais">

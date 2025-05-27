@@ -195,6 +195,11 @@ export { fetchAlertasGerData as alertasGerData } from '../services/alertService'
 
 export { fetchProposalStatusDistribution as proposalStatusData } from '../services/proposalService';
 
+export type ProposalStatusDataParams = {
+  dataInicio?: string;
+  dataFim?: string;
+};
+
 // Importando dados mockados do arquivo JSON
 import historicoDados from '../../public/massa-historico.json';
 

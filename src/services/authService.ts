@@ -28,6 +28,23 @@ export const api = axios.create({
 });
 
 export const authService = {
+  async loginWithService(): Promise<AuthToken> {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', config.SERVICE_CLIENT_ID);
+    params.append('client_secret', config.SERVICE_CLIENT_SECRET);
+
+    try {
+      const response = await authApi.post<AuthToken>(`/auth/realms/${config.AUTH_REALM}/protocol/openid-connect/token`, params);
+      this.setToken(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao realizar login com serviço:', error);
+      this.setFallbackToken();
+      throw error;
+    }
+  },
+
   async login(username: string, password: string): Promise<AuthToken> {
     const params = new URLSearchParams();
     params.append('grant_type', 'password');
