@@ -27,6 +27,7 @@ export const api = axios.create({
   }
 });
 
+
 export const authService = {
   async loginWithService(): Promise<AuthToken> {
     const params = new URLSearchParams();
@@ -108,6 +109,7 @@ export const authService = {
 // Interceptor global para todas as requisições da API do sistema
 api.interceptors.request.use(
   (config) => {
+    console.log('url base no interceptr baseulr : ', config.baseURL);
     const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -117,6 +119,7 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
+  
 );
 
 // Interceptor global para tratamento de respostas
