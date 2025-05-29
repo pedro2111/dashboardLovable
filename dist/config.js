@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-  AUTH_API_URL: 'https://login.des.caixa',
+  AUTH_API_URL: 'http://localhost:3001',
   API_URL: '/api',
   CLIENT_ID: 'cli-web-pnc',
   AUTH_REALM: 'intranet',

@@ -15,10 +15,10 @@ declare global {
 export const config = {
   get AUTH_API_URL() {
     console.log(window.APP_CONFIG?.AUTH_API_URL);
-    return window.APP_CONFIG?.AUTH_API_URL || 'https://login.des.caixa';
+    return window.APP_CONFIG?.AUTH_API_URL || 'http://localhost:3001';
   },
   get API_URL() {
-    return window.APP_CONFIG?.API_URL || 'http://localhost:3001/api';
+    return window.APP_CONFIG?.API_URL || 'http://localhost:3001/backend';
   },
   get CLIENT_ID() {
     return window.APP_CONFIG?.CLIENT_ID || 'cli-web-pnc';

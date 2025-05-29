@@ -7,7 +7,7 @@ import fs from 'fs';
 // Função para ler a URL da API do config.js
 function getApiUrl() {
   console.log('peguei a url de proxy');
-  return 'http://sigpf-servicos-des.apps.nprd.caixa/backend';
+  return 'http://localhost:3001/backend';
 }
 
 export default defineConfig(({ mode, command }) => ({
@@ -16,7 +16,7 @@ export default defineConfig(({ mode, command }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: command === 'build' ? getApiUrl() : 'http://localhost:3001/backend/',//http://sigpf-servicos-des.apps.nprd.caixa/backend
+        target: command === 'build' ? getApiUrl() : 'http://localhost:3001/backend',//http://sigpf-servicos-des.apps.nprd.caixa/backend
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy) => {
