@@ -138,7 +138,10 @@ const Index = () => {
         };
       case 'tudo':
       default:
-        return {};
+        return {
+          dataInicio: `01/04/2025`,
+          dataFim: `31/12/2030`
+        };
     }
   };
 
