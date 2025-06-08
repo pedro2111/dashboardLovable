@@ -15,7 +15,7 @@ import { fetchProposalHistory } from "@/services/proposalHistoryService";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function ProposalHistoryPage() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [filteredData, setFilteredData] = useState<ProposalHistoryResponse>({
     propostas: [],
@@ -99,7 +99,7 @@ export default function ProposalHistoryPage() {
     setCurrentPage(page);
   };
 
-  const fetchData = async (page: number = 1) => {
+  const fetchData = async (page: number = 0) => {
     try {
       const filters = {
         nuPropostaSeguridade: proposalNumber,
@@ -119,8 +119,8 @@ export default function ProposalHistoryPage() {
 
   // Função para aplicar os filtros com debounce
   const applyFilters = () => {
-    setCurrentPage(1);
-    fetchData(1);
+    setCurrentPage(0);
+    fetchData(0);
   };
 
   // Aplica debounce nos filtros
@@ -130,7 +130,7 @@ export default function ProposalHistoryPage() {
     }
     const timeout = setTimeout(() => {
       applyFilters();
-    }, 500);
+    }, 150);
     setSearchTimeout(timeout);
 
     return () => {
@@ -282,7 +282,7 @@ export default function ProposalHistoryPage() {
             </Button>
             <Button 
               className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary transition-all hover:shadow-md"
-              onClick={() => fetchData(1)}
+              onClick={() => fetchData(0)}
             >
               <Search className="h-4 w-4" />
               Pesquisar

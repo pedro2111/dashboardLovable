@@ -108,9 +108,19 @@ export const authService = {
 
 // Interceptor global para todas as requisições da API do sistema
 api.interceptors.request.use(
-  (config) => {
-    console.log('url base no interceptr baseulr : ', config.baseURL);
-    const token = authService.getToken();
+  async (config) => {
+    //console.log('url base no interceptr baseulr : ', config.baseURL);
+    let token = authService.getToken();
+    
+    if (token && authService.isTokenExpired()) {
+      try {
+        await authService.loginWithService();
+        token = authService.getToken();
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+      }
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -119,7 +129,6 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
-  
 );
 
 // Interceptor global para tratamento de respostas

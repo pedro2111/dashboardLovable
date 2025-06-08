@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import authService from "@/services/authService";
 
 interface DashboardHeaderProps {
   pageTitle: string;
@@ -39,7 +40,10 @@ export function DashboardHeader({ pageTitle }: DashboardHeaderProps) {
             <DropdownMenuItem>Perfil</DropdownMenuItem>
             <DropdownMenuItem>Configurações</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Sair</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              authService.logout();
+              window.location.href = '/login';
+            }}>Sair</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
