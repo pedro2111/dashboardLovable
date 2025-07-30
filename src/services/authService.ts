@@ -63,6 +63,15 @@ export const authService = {
       throw error;
     }
   },
+  
+  loginWithToken(token: string): void {
+    const mockToken: AuthToken = {
+      access_token: token,
+      expires_in: 3600,
+      token_type: 'Bearer'
+    };
+    this.setToken(mockToken);
+  },
 
   setFallbackToken(): void {
     const mockToken: AuthToken = {
