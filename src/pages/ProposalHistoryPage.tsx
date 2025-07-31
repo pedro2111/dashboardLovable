@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Search } from "lucide-react";
+import { Calendar as CalendarIcon, Search, ExternalLink } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { ProposalHistoryRecord, ProposalHistoryResponse } from "@/data/dashboardData";
 import { fetchProposalHistory } from "@/services/proposalHistoryService";
 import { ColumnDef } from "@tanstack/react-table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function ProposalHistoryPage() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -33,6 +34,9 @@ export default function ProposalHistoryPage() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
+  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
+  const [proposalHistory, setProposalHistory] = useState<ProposalHistoryRecord[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Table columns definition
   const columns: ColumnDef<ProposalHistoryRecord>[] = [
@@ -47,6 +51,25 @@ export default function ProposalHistoryPage() {
     {
       accessorKey: "nuPropostaSeguridade",
       header: "Nº Proposta",
+      cell: ({ row }) => {
+        const proposta = row.original.nuPropostaSeguridade;
+        const count = getProposalCount(proposta);
+        
+        if (count > 1) {
+          return (
+            <Button 
+              variant="link" 
+              className="p-0 h-auto font-normal text-primary flex items-center gap-1"
+              onClick={() => openProposalHistory(proposta)}
+            >
+              {proposta}
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          );
+        }
+        
+        return proposta;
+      },
     },
     {
       accessorKey: "deSituacaoProposta",
@@ -67,7 +90,7 @@ export default function ProposalHistoryPage() {
                 status === "CAN" && "bg-red-500"
               )}
             />
-            <span>{row.original.deSituacaoProposta}</span>
+            <span>{row.original.sgSituacaoProposta}</span>
           </div>
         );
       },
@@ -115,6 +138,37 @@ export default function ProposalHistoryPage() {
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
     }
+  };
+  
+  // Função para abrir o modal com o histórico de uma proposta específica
+  const openProposalHistory = (nuPropostaSeguridade: number) => {
+    const proposalRecords = filteredData.propostas.filter(
+      (proposta) => proposta.nuPropostaSeguridade === nuPropostaSeguridade
+    );
+    setProposalHistory(proposalRecords);
+    setSelectedProposal(nuPropostaSeguridade);
+    setDialogOpen(true);
+  };
+  
+  // Agrupar propostas por número e pegar apenas a mais recente de cada
+  const groupedProposals = useMemo(() => {
+    const proposalMap = new Map<number, ProposalHistoryRecord>();
+    
+    // Agrupar por número de proposta e manter apenas a mais recente
+    filteredData.propostas.forEach((proposta) => {
+      const existingProposal = proposalMap.get(proposta.nuPropostaSeguridade);
+      
+      if (!existingProposal || new Date(proposta.dataEvolucao) > new Date(existingProposal.dataEvolucao)) {
+        proposalMap.set(proposta.nuPropostaSeguridade, proposta);
+      }
+    });
+    
+    return Array.from(proposalMap.values());
+  }, [filteredData.propostas]);
+  
+  // Função para contar quantas ocorrências existem para cada proposta
+  const getProposalCount = (nuPropostaSeguridade: number): number => {
+    return filteredData.propostas.filter(p => p.nuPropostaSeguridade === nuPropostaSeguridade).length;
   };
 
   // Função para aplicar os filtros com debounce
@@ -295,14 +349,67 @@ export default function ProposalHistoryPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 blur-xl opacity-30 -z-10 rounded-xl"></div>
           <DataTable
             columns={columns}
-            data={filteredData.propostas}
+            data={groupedProposals}
             pageSize={filteredData.paginacao.limit}
             currentPage={currentPage}
-            totalItems={filteredData.paginacao.count}
+            totalItems={groupedProposals.length}
             onPageChange={handlePageChange}
-            title="Resultados"
+            title={`Resultados (${groupedProposals.length} propostas únicas)`}
           />
         </div>
+        
+        {/* Modal de histórico de propostas */}
+        {selectedProposal && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Histórico da Proposta {selectedProposal}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="py-2 px-4 text-left">Data Evolução</th>
+                      <th className="py-2 px-4 text-left">Situação</th>
+                      <th className="py-2 px-4 text-left">Ação</th>
+                      <th className="py-2 px-4 text-left">Tipo de Fluxo</th>
+                      <th className="py-2 px-4 text-left">Motivo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {proposalHistory
+                      .sort((a, b) => new Date(b.dataEvolucao).getTime() - new Date(a.dataEvolucao).getTime())
+                      .map((item, index) => (
+                        <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
+                          <td className="py-2 px-4">{item.dataEvolucao}</td>
+                          <td className="py-2 px-4">
+                            <div className="flex items-center">
+                              <div
+                                className={cn(
+                                  "mr-2 h-2 w-2 rounded-full",
+                                  item.sgSituacaoProposta === "GER" && "bg-green-500",
+                                  item.sgSituacaoProposta === "ENV" && "bg-green-500",
+                                  item.sgSituacaoProposta === "PEN" && "bg-yellow-500",
+                                  item.sgSituacaoProposta === "VNC" && "bg-yellow-500",
+                                  item.sgSituacaoProposta === "REJ" && "bg-red-500",
+                                  item.sgSituacaoProposta === "EMT" && "bg-green-500",
+                                  item.sgSituacaoProposta === "CAN" && "bg-red-500"
+                                )}
+                              />
+                              <span>{item.sgSituacaoProposta}</span>
+                            </div>
+                          </td>
+                          <td className="py-2 px-4">{item.deAcaoFluxoServico}</td>
+                          <td className="py-2 px-4">{item.deFluxoServicoSeguridade}</td>
+                          <td className="py-2 px-4">{item.deMotivoSistema || "—"}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </DashboardLayout>
   );
