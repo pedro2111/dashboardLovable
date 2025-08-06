@@ -14,6 +14,33 @@ import { ProposalHistoryRecord, ProposalHistoryResponse } from "@/data/dashboard
 import { fetchProposalHistory } from "@/services/proposalHistoryService";
 import { ColumnDef } from "@tanstack/react-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+// Componente para o indicador de status da proposta
+interface StatusIndicatorProps {
+  status: string;
+  label?: string;
+}
+
+const StatusIndicator = ({ status, label }: StatusIndicatorProps) => {
+  return (
+    <div className="flex items-center">
+      <div
+        className={cn(
+          "mr-2 h-2 w-2 rounded-full",
+          status === "GER" && "bg-green-500",
+          status === "ENV" && "bg-green-500",
+          status === "PEN" && "bg-yellow-500",
+          status === "VNC" && "bg-yellow-500",
+          status === "REJ" && "bg-red-500",
+          status === "EMT" && "bg-green-500",
+          status === "CAN" && "bg-red-500"
+        )}
+      />
+      {label && <span>{label}</span>}
+    </div>
+  );
+};
 
 export default function ProposalHistoryPage() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -37,6 +64,9 @@ export default function ProposalHistoryPage() {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [proposalHistory, setProposalHistory] = useState<ProposalHistoryRecord[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("negocial");
+  const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
+  const [selectedItemJson, setSelectedItemJson] = useState<any>(null);
 
   // Table columns definition
   const columns: ColumnDef<ProposalHistoryRecord>[] = [
@@ -76,23 +106,7 @@ export default function ProposalHistoryPage() {
       header: "Situação",
       cell: ({ row }) => {
         const status = row.original.sgSituacaoProposta as string;
-        return (
-          <div className="flex items-center">
-            <div
-              className={cn(
-                "mr-2 h-2 w-2 rounded-full",
-                status === "GER" && "bg-green-500",
-                status === "ENV" && "bg-green-500",
-                status === "PEN" && "bg-yellow-500",
-                status === "VNC" && "bg-yellow-500",
-                status === "REJ" && "bg-red-500",
-                status === "EMT" && "bg-green-500",
-                status === "CAN" && "bg-red-500"
-              )}
-            />
-            <span>{row.original.sgSituacaoProposta}</span>
-          </div>
-        );
+        return <StatusIndicator status={status} label={row.original.sgSituacaoProposta} />;
       },
     },
     {
@@ -170,6 +184,60 @@ export default function ProposalHistoryPage() {
   const getProposalCount = (nuPropostaSeguridade: number): number => {
     return filteredData.propostas.filter(p => p.nuPropostaSeguridade === nuPropostaSeguridade).length;
   };
+  
+  // JSON mockado para exibição
+  const mockJson = {
+    coLancamentoTransacao: "a93be91b-6848-43d6-8007-90a16debbe9b",
+    coSeguroContrato: "a93be91b-6848-43d6-8007-90a16debbe9b",
+    nuFluxo: 1,
+    nuAcao: 1,
+    sistemaOrigem: "SINCR",
+    nuMatrizDisponibilizacao: 15,
+    nuEmpresa: 1,
+    canalVenda: 42,
+    nuMotivo: 731,
+    codigoContratoRenovacao: 1,
+    nuPropostaSIGPF: null,
+    nuPropostaSeguridade: null,
+    numeroCorrespondente: 40141390,
+    tipoCorrespondente: 1,
+    codigoOperacaoCredito: 1,
+    agencia: 2,
+    codigoMatriculaEmpregado: "c897998",
+    convenente: 10605,
+    cpfCnpj: 72302942078,
+    tipoPessoa: "F",
+    nomeProponente: "CLIENTE SIDEC 6",
+    nomeSocial: "CLIENTE SIDEC 6 social",
+    numeroContrato: 8376,
+    valorTotalContrato: 199292.26,
+    valorLiquido: 142205.1,
+    valorTotalIof: 6722.13,
+    valorTotalJurosAcerto: 0,
+    saldoDevedorContrato: "199292.26",
+    valorImportanciaSegurada: "249657.29",
+    valorPremio: "48372.26",
+    dataContratacao: "2024-06-26",
+    dataLiberacaoCredito: "2024-06-26",
+    dataFimContrato: "2028-04-07",
+    prazoTotalContrato: "1381",
+    prazoCarencia: "0",
+    prazoRemanescente: "1381",
+    eventProcessedUtcTime: "2024-06-26T20:56:30.1030689Z",
+    partitionId: "0",
+    eventEnqueuedUtcTime: "2024-06-26T13:04:39.5640000Z"
+  };
+  
+  // Função para abrir o modal de JSON
+  const openJsonModal = (item: ProposalHistoryRecord) => {
+    setSelectedItemJson(mockJson);
+    setJsonDialogOpen(true);
+  };
+  
+  // Função para voltar ao modal anterior
+  const backToMainModal = () => {
+    setJsonDialogOpen(false);
+  };
 
   // Função para aplicar os filtros com debounce
   const applyFilters = () => {
@@ -192,7 +260,7 @@ export default function ProposalHistoryPage() {
         clearTimeout(searchTimeout);
       }
     };
-  }, [proposalNumber, situacao, startDate, endDate, pageSize]);
+  }, [situacao, startDate, endDate, pageSize]);
 
   useEffect(() => {
     fetchData(currentPage);
@@ -360,52 +428,123 @@ export default function ProposalHistoryPage() {
         
         {/* Modal de histórico de propostas */}
         {selectedProposal && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen && !jsonDialogOpen} onOpenChange={(open) => {
+            if (!open && !jsonDialogOpen) {
+              setDialogOpen(false);
+            }
+          }}>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Histórico da Proposta {selectedProposal}</DialogTitle>
               </DialogHeader>
               <div className="mt-4">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="py-2 px-4 text-left">Data Evolução</th>
-                      <th className="py-2 px-4 text-left">Situação</th>
-                      <th className="py-2 px-4 text-left">Ação</th>
-                      <th className="py-2 px-4 text-left">Tipo de Fluxo</th>
-                      <th className="py-2 px-4 text-left">Motivo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {proposalHistory
-                      .sort((a, b) => new Date(b.dataEvolucao).getTime() - new Date(a.dataEvolucao).getTime())
-                      .map((item, index) => (
-                        <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
-                          <td className="py-2 px-4">{item.dataEvolucao}</td>
-                          <td className="py-2 px-4">
-                            <div className="flex items-center">
-                              <div
-                                className={cn(
-                                  "mr-2 h-2 w-2 rounded-full",
-                                  item.sgSituacaoProposta === "GER" && "bg-green-500",
-                                  item.sgSituacaoProposta === "ENV" && "bg-green-500",
-                                  item.sgSituacaoProposta === "PEN" && "bg-yellow-500",
-                                  item.sgSituacaoProposta === "VNC" && "bg-yellow-500",
-                                  item.sgSituacaoProposta === "REJ" && "bg-red-500",
-                                  item.sgSituacaoProposta === "EMT" && "bg-green-500",
-                                  item.sgSituacaoProposta === "CAN" && "bg-red-500"
-                                )}
-                              />
-                              <span>{item.sgSituacaoProposta}</span>
-                            </div>
-                          </td>
-                          <td className="py-2 px-4">{item.deAcaoFluxoServico}</td>
-                          <td className="py-2 px-4">{item.deFluxoServicoSeguridade}</td>
-                          <td className="py-2 px-4">{item.deMotivoSistema || "—"}</td>
+                <Tabs defaultValue="negocial" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="w-full grid grid-cols-2">
+                    <TabsTrigger value="negocial">Histórico negocial</TabsTrigger>
+                    <TabsTrigger value="monitoracao">Histórico Monitoração</TabsTrigger>
+                  </TabsList>
+                  
+                  {/* Conteúdo da aba Histórico negocial */}
+                  <TabsContent value="negocial" className="mt-4">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="py-2 px-4 text-left">Data Evolução</th>
+                          <th className="py-2 px-4 text-left">Situação</th>
+                          <th className="py-2 px-4 text-left">Ação</th>
+                          <th className="py-2 px-4 text-left">Tipo de Fluxo</th>
+                          <th className="py-2 px-4 text-left">Motivo</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {proposalHistory
+                          .filter(item => item.icNegocial === "S")
+                          .sort((a, b) => new Date(b.dataEvolucao).getTime() - new Date(a.dataEvolucao).getTime())
+                          .map((item, index) => (
+                            <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
+                              <td className="py-2 px-4">{item.dataEvolucao}</td>
+                              <td className="py-2 px-4">
+                                <StatusIndicator status={item.sgSituacaoProposta} label={item.deSituacaoProposta} />
+                              </td>
+                              <td className="py-2 px-4">{item.deAcaoFluxoServico}</td>
+                              <td className="py-2 px-4">{item.deFluxoServicoSeguridade}</td>
+                              <td className="py-2 px-4">{item.deMotivoSistema || "—"}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                    
+                  </TabsContent>
+                  
+                  {/* Conteúdo da aba Histórico Monitoração */}
+                  <TabsContent value="monitoracao" className="mt-4">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="py-2 px-4 text-left">Data Evolução</th>
+                          <th className="py-2 px-4 text-left">Situação</th>
+                          <th className="py-2 px-4 text-left">Ação</th>
+                          <th className="py-2 px-4 text-left">Tipo de Fluxo</th>
+                          <th className="py-2 px-4 text-left">Motivo</th>
+                          <th className="py-2 px-4 text-left">JSON</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {proposalHistory
+                          .filter(item => item.icMonitoracao === "S")
+                          .sort((a, b) => new Date(b.dataEvolucao).getTime() - new Date(a.dataEvolucao).getTime())
+                          .map((item, index) => (
+                            <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
+                              <td className="py-2 px-4">{item.dataEvolucao}</td>
+                              <td className="py-2 px-4">
+                                <StatusIndicator status={item.sgSituacaoProposta} label={item.deSituacaoProposta} />
+                              </td>
+                              <td className="py-2 px-4">{item.deAcaoFluxoServico}</td>
+                              <td className="py-2 px-4">{item.deFluxoServicoSeguridade}</td>
+                              <td className="py-2 px-4">{item.deMotivoSistema || "—"}</td>
+                              <td className="py-2 px-4">
+                                <Button 
+                                  variant="link" 
+                                  className="p-0 h-auto font-normal text-primary flex items-center gap-1"
+                                  onClick={() => openJsonModal(item)}
+                                >
+                                  Json
+                                  <ExternalLink className="h-3 w-3" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                    {proposalHistory.filter(item => item.icMonitoracao === "S").length === 0 && (
+                      <div className="text-center py-4 text-muted-foreground">Nenhum registro de monitoração encontrado.</div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+        
+        {/* Modal de JSON */}
+        {selectedItemJson && (
+          <Dialog open={jsonDialogOpen} onOpenChange={setJsonDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Detalhes JSON</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto text-sm">
+                  {JSON.stringify(selectedItemJson, null, 2)}
+                </pre>
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={backToMainModal}
+                    className="flex items-center gap-2"
+                  >
+                    Voltar
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
