@@ -15,6 +15,8 @@ import { fetchProposalHistory } from "@/services/proposalHistoryService";
 import { ColumnDef } from "@tanstack/react-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ProgressBar, Step } from "react-step-progress-bar";
+import "react-step-progress-bar/styles.css";
 
 // Componente para o indicador de status da proposta
 interface StatusIndicatorProps {
@@ -38,6 +40,102 @@ const StatusIndicator = ({ status, label }: StatusIndicatorProps) => {
         )}
       />
       {label && <span>{label}</span>}
+    </div>
+  );
+};
+
+// Componente para o stepper do ciclo de vida da proposta
+interface ProposalStepperProps {
+  proposalHistory: ProposalHistoryRecord[];
+}
+
+const ProposalStepper = ({ proposalHistory }: ProposalStepperProps) => {
+  // Filtra apenas registros negociais e ordena por data de evolução (crescente)
+  const sortedHistory = [...proposalHistory]
+    .filter(item => item.icNegocial === "S")
+    .sort((a, b) => {
+      // Convertemos as strings de data para objetos Date para comparação
+      const dateA = new Date(a.dataEvolucao.split(' ')[0].split('/').reverse().join('-') + 'T' + a.dataEvolucao.split(' ')[1]);
+      const dateB = new Date(b.dataEvolucao.split(' ')[0].split('/').reverse().join('-') + 'T' + b.dataEvolucao.split(' ')[1]);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+  // Se não houver registros, retorna null
+  if (sortedHistory.length === 0) {
+    return null;
+  }
+
+  // Extrai as situações únicas em ordem cronológica
+  // Usamos um método que preserva a ordem de aparição na sequência temporal
+  const uniqueSteps = [];
+  const seenSituacoes = new Set();
+  
+  for (const item of sortedHistory) {
+    if (!seenSituacoes.has(item.sgSituacaoProposta)) {
+      seenSituacoes.add(item.sgSituacaoProposta);
+      uniqueSteps.push(item);
+    }
+  }
+
+  // Calcula o percentual de progresso com base na posição atual
+  const currentStep = sortedHistory[sortedHistory.length - 1].sgSituacaoProposta;
+  const currentStepIndex = uniqueSteps.findIndex(item => item.sgSituacaoProposta === currentStep);
+  const percentComplete = uniqueSteps.length > 1 
+    ? (currentStepIndex / (uniqueSteps.length - 1)) * 100 
+    : 0;
+
+  // Função para obter a cor com base no status
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "GER":
+      case "ENV":
+      case "EMT":
+        return "#10b981"; // verde
+      case "PEN":
+      case "VNC":
+        return "#f59e0b"; // amarelo
+      case "REJ":
+      case "CAN":
+        return "#ef4444"; // vermelho
+      default:
+        return "#6b7280"; // cinza
+    }
+  };
+
+  return (
+    <div className="mt-8 mb-10 px-4 border-t border-b border-gray-200 dark:border-gray-700 py-6">
+      <h3 className="text-base font-medium mb-6 text-center"></h3>
+      <div className="mb-4">
+        <ProgressBar
+          percent={percentComplete}
+          filledBackground="linear-gradient(to right, #10b981, #3b82f6)"
+          height={4}
+        >
+          {uniqueSteps.map((step, index) => (
+            <Step key={index}>
+              {({ accomplished }) => (
+                <div
+                  className={`flex flex-col items-center ${accomplished ? "text-primary" : "text-gray-400"}`}
+                >
+                  <div
+                    className={`w-8 h-8 flex items-center justify-center rounded-full mb-2 transition-all ${accomplished ? "scale-110" : ""}`}
+                    style={{
+                      backgroundColor: accomplished ? getStatusColor(step.sgSituacaoProposta) : "#e5e7eb",
+                      boxShadow: accomplished ? "0 0 0 4px rgba(59, 130, 246, 0.2)" : "none"
+                    }}
+                  >
+                    <span className="text-white text-xs font-bold">
+                      {index + 1}
+                    </span>
+                  </div>
+                  <div className="text-xs font-medium">{step.sgSituacaoProposta}</div>
+                
+                </div>
+              )}
+            </Step>
+          ))}
+        </ProgressBar>
+      </div>
     </div>
   );
 };
@@ -445,7 +543,12 @@ export default function ProposalHistoryPage() {
                   </TabsList>
                   
                   {/* Conteúdo da aba Histórico negocial */}
-                  <TabsContent value="negocial" className="mt-4">
+                  <TabsContent value="negocial" className="mt-6">
+                    {/* Stepper para mostrar o ciclo de vida da proposta */}
+                    {proposalHistory.filter(item => item.icNegocial === "S").length > 0 && (
+                      <ProposalStepper proposalHistory={proposalHistory} />
+                    )}
+                    
                     <table className="w-full border-collapse">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -473,7 +576,9 @@ export default function ProposalHistoryPage() {
                           ))}
                       </tbody>
                     </table>
-                    
+                    {proposalHistory.filter(item => item.icNegocial === "S").length === 0 && (
+                      <div className="text-center py-4 text-muted-foreground">Nenhum registro negocial encontrado.</div>
+                    )}
                   </TabsContent>
                   
                   {/* Conteúdo da aba Histórico Monitoração */}
