@@ -77,15 +77,57 @@ const ProposalStepper = ({ proposalHistory }: ProposalStepperProps) => {
     }
   }
 
+  // Verifica se existe apenas o registro GER e adiciona step ENV fictício
+  let stepsToRender = [...uniqueSteps];
+  let hasOnlyGER = false;
+  let gerRecord = null;
+  
+  if (uniqueSteps.length === 1 && uniqueSteps[0].sgSituacaoProposta === "GER") {
+    hasOnlyGER = true;
+    gerRecord = uniqueSteps[0];
+    
+    // Cria um step ENV fictício
+    const envStep = {
+      ...gerRecord,
+      sgSituacaoProposta: "ENV",
+      isVirtual: true
+    };
+    
+    stepsToRender.push(envStep);
+  }
+
   // Calcula o percentual de progresso com base na posição atual
   const currentStep = sortedHistory[sortedHistory.length - 1].sgSituacaoProposta;
-  const currentStepIndex = uniqueSteps.findIndex(item => item.sgSituacaoProposta === currentStep);
-  const percentComplete = uniqueSteps.length > 1 
-    ? (currentStepIndex / (uniqueSteps.length - 1)) * 100 
+  const currentStepIndex = stepsToRender.findIndex(item => item.sgSituacaoProposta === currentStep);
+  const percentComplete = stepsToRender.length > 1 
+    ? (currentStepIndex / (stepsToRender.length - 1)) * 100 
     : 0;
 
+  // Função para calcular a cor do step ENV baseada no tempo decorrido
+  const getENVColor = (gerRecord: any) => {
+    if (!gerRecord) return "#6b7280"; // cinza padrão
+    
+    const gerDate = new Date(gerRecord.dataEvolucao.split(' ')[0].split('/').reverse().join('-') + 'T' + gerRecord.dataEvolucao.split(' ')[1]);
+    const now = new Date();
+    const diffInHours = (now.getTime() - gerDate.getTime()) / (1000 * 60 * 60);
+    
+    if (diffInHours > 24) {
+      return "#8b5cf6"; // roxo
+    } else if (diffInHours > 6) {
+      return "#f97316"; // laranja
+    } else if (diffInHours > 2) {
+      return "#f59e0b"; // amarelo
+    } else {
+      return "#6b7280"; // cinza
+    }
+  };
+
   // Função para obter a cor com base no status
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, step?: any) => {
+    if (status === "ENV" && step?.isVirtual && hasOnlyGER) {
+      return getENVColor(gerRecord);
+    }
+    
     switch (status) {
       case "GER":
       case "ENV":
@@ -111,29 +153,41 @@ const ProposalStepper = ({ proposalHistory }: ProposalStepperProps) => {
           filledBackground="linear-gradient(to right, #10b981, #3b82f6)"
           height={4}
         >
-          {uniqueSteps.map((step, index) => (
-            <Step key={index}>
-              {({ accomplished }) => (
-                <div
-                  className={`flex flex-col items-center ${accomplished ? "text-primary" : "text-gray-400"}`}
-                >
-                  <div
-                    className={`w-8 h-8 flex items-center justify-center rounded-full mb-2 transition-all ${accomplished ? "scale-110" : ""}`}
-                    style={{
-                      backgroundColor: accomplished ? getStatusColor(step.sgSituacaoProposta) : "#e5e7eb",
-                      boxShadow: accomplished ? "0 0 0 4px rgba(59, 130, 246, 0.2)" : "none"
-                    }}
-                  >
-                    <span className="text-white text-xs font-bold">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="text-xs font-medium">{step.sgSituacaoProposta}</div>
-                
-                </div>
-              )}
-            </Step>
-          ))}
+          {stepsToRender.map((step, index) => {
+            // Para steps virtuais ENV, só considera accomplished se não for o último step
+            const isAccomplished = step.isVirtual ? false : index <= currentStepIndex;
+            
+            return (
+              <Step key={index}>
+                {({ accomplished }) => {
+                  // Para steps virtuais, usa nossa lógica customizada
+                  const stepAccomplished = step.isVirtual ? isAccomplished : accomplished;
+                  
+                  return (
+                    <div
+                      className={`flex flex-col items-center ${stepAccomplished ? "text-primary" : "text-gray-400"}`}
+                    >
+                      <div
+                        className={`w-8 h-8 flex items-center justify-center rounded-full mb-2 transition-all ${stepAccomplished ? "scale-110" : ""}`}
+                        style={{
+                          backgroundColor: step.isVirtual 
+                            ? getStatusColor(step.sgSituacaoProposta, step)
+                            : (stepAccomplished ? getStatusColor(step.sgSituacaoProposta) : "#e5e7eb"),
+                          boxShadow: stepAccomplished ? "0 0 0 4px rgba(59, 130, 246, 0.2)" : "none"
+                        }}
+                      >
+                        <span className="text-white text-xs font-bold">
+                          {index + 1}
+                        </span>
+                      </div>
+                      <div className="text-xs font-medium">{step.sgSituacaoProposta}</div>
+                    
+                    </div>
+                  );
+                }}
+              </Step>
+            );
+          })}
         </ProgressBar>
       </div>
     </div>
