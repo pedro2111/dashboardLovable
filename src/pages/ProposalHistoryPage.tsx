@@ -235,22 +235,18 @@ export default function ProposalHistoryPage() {
       header: "Nº Proposta",
       cell: ({ row }) => {
         const proposta = row.original.nuPropostaSeguridade;
-        const count = getProposalCount(proposta);
         
-        if (count > 1) {
-          return (
-            <Button 
-              variant="link" 
-              className="p-0 h-auto font-normal text-primary flex items-center gap-1"
-              onClick={() => openProposalHistory(proposta)}
-            >
-              {proposta}
-              <ExternalLink className="h-3 w-3" />
-            </Button>
-          );
-        }
-        
-        return proposta;
+        // Sempre exibe como link, independentemente da quantidade de registros
+        return (
+          <Button 
+            variant="link" 
+            className="p-0 h-auto font-normal text-primary flex items-center gap-1"
+            onClick={() => openProposalHistory(proposta)}
+          >
+            {proposta}
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        );
       },
     },
     {
