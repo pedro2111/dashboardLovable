@@ -202,5 +202,7 @@ export type ProposalStatusDataParams = {
 
 // Importando dados mockados do arquivo JSON
 import historicoDados from '../../public/massa-historico.json';
+import ultimaSituacaoDados from '../../public/ultimaSituacaoProposta.json';
 
 export const proposalHistoryData: ProposalHistoryResponse = historicoDados;
+export const ultimaSituacaoPropostaData = ultimaSituacaoDados;
