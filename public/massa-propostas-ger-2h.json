@@ -1,0 +1,121 @@
+{
+    "timestamp": "2025-09-08T17:58:35",
+    "propostas": [
+        
+        {
+            "nuPropostaSeguridade": 198089,
+            "horasEmGer": 73,
+            "statusAlerta": "Risco Exclusão",
+            "ultimaAtualizacao": "2025-09-05T16:56:21",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198090,
+            "horasEmGer": 73,
+            "statusAlerta": "Risco Exclusão",
+            "ultimaAtualizacao": "2025-09-05T16:56:22",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198091,
+            "horasEmGer": 73,
+            "statusAlerta": "Risco Exclusão",
+            "ultimaAtualizacao": "2025-09-05T16:56:23",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198094,
+            "horasEmGer": 72,
+            "statusAlerta": "Risco Exclusão",
+            "ultimaAtualizacao": "2025-09-05T17:07:29",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198250,
+            "horasEmGer": 5,
+            "statusAlerta": "Crítico",
+            "ultimaAtualizacao": "2025-09-08T12:25:03",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198253,
+            "horasEmGer": 5,
+            "statusAlerta": "Crítico",
+            "ultimaAtualizacao": "2025-09-08T12:50:29",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198319,
+            "horasEmGer": 3,
+            "statusAlerta": "Atenção",
+            "ultimaAtualizacao": "2025-09-08T14:02:25",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198348,
+            "horasEmGer": 3,
+            "statusAlerta": "Atenção",
+            "ultimaAtualizacao": "2025-09-08T14:42:06",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198362,
+            "horasEmGer": 2,
+            "statusAlerta": "Normal",
+            "ultimaAtualizacao": "2025-09-08T14:59:40",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        },
+        {
+            "nuPropostaSeguridade": 198363,
+            "horasEmGer": 2,
+            "statusAlerta": "Normal",
+            "ultimaAtualizacao": "2025-09-08T14:59:41",
+            "nuCanalSeguridade": 42,
+            "nuEmpresaSeguridade": 1,
+            "nuSituacaoProposta": 35,
+            "sgSituacaoProposta": "GER",
+            "deSituacaoProposta": "PROPOSTA GERADA "
+        }
+    ],
+    "paginacao": {
+        "offset": 0,
+        "limit": 10000,
+        "count": 125
+    }
+}

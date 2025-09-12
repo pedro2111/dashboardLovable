@@ -1,4 +1,4 @@
-export type AlertaGerData = {
+/*export type AlertaGerData = {
   NU_PROPOSTA: number;
   NU_DV_PROPOSTA: number;
   HORAS_EM_GER: number;
@@ -7,6 +7,7 @@ export type AlertaGerData = {
   NU_CANAL_SEGURIDADE: number;
   NU_EMPRESA_SEGURIDADE: number;
 };
+*/
 
 export interface FunnelData {
   ORDEM: number;

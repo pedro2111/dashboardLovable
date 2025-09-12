@@ -9,8 +9,7 @@ import {
   timeSeriesData,
   proposalStatusData
 } from "@/data/dashboardData";
-import { fetchAlertasGerData } from "@/services/alertService";
-import type { AlertaGerData } from "@/types/dashboard";
+import { fetchAlertasGerData, AlertaGerResponse,AlertaGerData } from "@/services/alertService";
 import { fetchFunnelData } from "@/services/funnelService";
 import { FunnelData } from "@/types/dashboard";
 import { fetchKPIData } from "@/services/kpiService";
@@ -159,7 +158,7 @@ const Index = () => {
         setStatusData(statusResult);
         setOverviewData(overviewResult);
         setFunnelData(funnelResult);
-        setAlertasGerData(alertasGerResult);
+        setAlertasGerData(alertasGerResult.propostas);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       } finally {
