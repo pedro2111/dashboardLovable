@@ -1,6 +1,10 @@
 // Importando dados mockados do arquivo JSON
 import historicoDados from '../../public/massa-historico.json';
 import ultimaSituacaoDados from '../../public/ultimaSituacaoProposta.json';
+import contratoDados from '../../public/contrato.json';
+import seguroDados from '../../public/contratoSeguro.json';
+
+
 
 export type OverviewStats = {
   id: number;
@@ -207,3 +211,5 @@ export type ProposalStatusDataParams = {
 
 export const proposalHistoryData: ProposalHistoryResponse = historicoDados;
 export const ultimaSituacaoPropostaData = ultimaSituacaoDados;
+export const contratoData = contratoDados;
+export const seguroData = seguroDados;

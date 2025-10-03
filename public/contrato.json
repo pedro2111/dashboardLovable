@@ -1,0 +1,44 @@
+{
+    "page": 1,
+    "size": 1,
+    "total": 1,
+    "erroSIFEC": false,
+    "data": [
+        {
+            "nuSistema": 0,
+            "coContrato": "ee2e31b0-1aa5-4eab-8825-7c7fafee5330",
+            "nuContrato": "16604865",
+            "produto": {
+                "nuProduto": 2110,
+                "noProduto": "CREDITO CONSIGNADO - SINCR"
+            },
+            "modalidade": {
+                "nuModalidadeProduto": 0,
+                "deModalidadeProduto": "PADRÃO"
+            },
+            "nuCpfCnpj": 49098004172,
+            "dtContratacao": "2025-09-01",
+            "vrContrato": 31273.24,
+            "nuAgenciaContrato": 2684,
+            "noSituacao": "Normal",
+            "nuSituacao": 1,
+            "noCliente": "VANDERLUCIO DE MORAIS",
+            "deMotivoEstorno": "",
+            "isLegado": false,
+            "vrLiquido": 12838.62,
+            "vrFinanciado": 0,
+            "vrSaldoDevedor": 30893.6751692,
+            "dtFimContrato": "0001-01-01",
+            "vrParcela": 559.85,
+            "diasEmAtraso": 0,
+            "qtdParcelasEmAberto": 0,
+            "qtdParcelasAtrasadas": 0,
+            "vrParcelasAtrasadas": 0,
+            "renovado": false,
+            "novacao": true,
+            "coCateira": "01",
+            "nuConvenio": 26075,
+            "dhSituacao": "2025-09-01"
+        }
+    ]
+}

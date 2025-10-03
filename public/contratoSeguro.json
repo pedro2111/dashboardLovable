@@ -1,0 +1,31 @@
+[
+    {
+        "coSeguroContrato": "5dcfb497-6212-42a4-9cff-150299e1bbc5",
+        "coContrato": "ee2e31b0-1aa5-4eab-8825-7c7fafee5330",
+        "coTipoSeguro": 1,
+        "coTipoCoberturaSeguro": 2,
+        "vrSeguro": 917.12,
+        "vrCapitalAssegurado": 5003.72,
+        "pcAssegurado": 0.16,
+        "vrAliquota": 0.21995270,
+        "coNaturezaSeguro": 2,
+        "dhInclusao": "2025-09-01T12:59:47.387",
+        "dtFimVigencia": "2025-10-02",
+        "dtInicioVigencia": "2025-09-01",
+        "nuPropostaSigpf": 0,
+        "nuPropostaSeguridade": 197144,
+        "nuMotivo": 57,
+        "nuFluxo": 16,
+        "nuAcao": 6,
+        "nuSituacaoProposta": 26,
+        "icSituacao": "R",
+        "deMotivoSigpf": "CAMPO OBRIGATORIO NAO PREENCHIDO",
+        "deFluxo": "REJEICAO",
+        "deAcao": "DECLINAR",
+        "deSituacaoProposta": "REJEITADA",
+        "deNaturezaSeguro": "Financiado",
+        "deTipoCoberturaSeguro": "Parcial por Porcentagem",
+        "deTipoSeguro": "Prestamista",
+        "deSituacao": "Rejeitado"
+    }
+]

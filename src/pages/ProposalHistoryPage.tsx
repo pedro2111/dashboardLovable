@@ -17,6 +17,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
+import { Contrato, fetchContrato } from "@/services/contratoService";
+import { toast } from "sonner";
+import ContratoModal from "@/components/ui/ContratoModal";
 
 // Componente para o indicador de status da proposta
 interface StatusIndicatorProps {
@@ -219,6 +222,29 @@ export default function ProposalHistoryPage() {
   const [activeTab, setActiveTab] = useState("negocial");
   const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
   const [selectedItemJson, setSelectedItemJson] = useState<any>(null);
+  
+  // Estados para o modal de contrato
+  const [contratoModalOpen, setContratoModalOpen] = useState(false);
+  const [selectedContrato, setSelectedContrato] = useState<Contrato | null>(null);
+  const [isLoadingContrato, setIsLoadingContrato] = useState(false);
+  
+  // Função para abrir o modal de contrato e buscar os dados
+  const openContratoModal = async (nuContrato: string) => {
+    setContratoModalOpen(true);
+    setIsLoadingContrato(true);
+    
+    try {
+      const response = await fetchContrato({ nuContrato });
+      if (response.data && response.data.length > 0) {
+        setSelectedContrato(response.data[0]);
+      } else {
+      }
+    } catch (error) {
+      console.error("Erro ao buscar dados do contrato:", error);
+    } finally {
+      setIsLoadingContrato(false);
+    }
+  };
 
   // Table columns definition
   const columns: ColumnDef<ProposalHistoryRecord>[] = [
@@ -229,6 +255,20 @@ export default function ProposalHistoryPage() {
     {
       accessorKey: "contrato",
       header: "Contrato",
+      cell: ({ row }) => {
+        const contrato = row.original.contrato;
+        
+        return (
+          <Button 
+            variant="link" 
+            className="p-0 h-auto font-normal text-primary flex items-center gap-1"
+            onClick={() => openContratoModal(contrato)}
+          >
+            {contrato}
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        );
+      },
     },
     {
       accessorKey: "nuPropostaSeguridade",
@@ -424,6 +464,13 @@ export default function ProposalHistoryPage() {
   return (
     <DashboardLayout pageTitle="Histórico de Propostas">
       <div className="container px-4 py-6 mx-auto animate-fade-in">
+        {/* Modal de Contrato */}
+        <ContratoModal
+          open={contratoModalOpen}
+          onOpenChange={setContratoModalOpen}
+          contrato={selectedContrato}
+          isLoading={isLoadingContrato}
+        />
         <div className="relative mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-primary/10 blur-3xl opacity-20 rounded-3xl -z-10"></div>
           <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
